@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Grid } from 'semantic-ui-react'
 
 export class NavMenu extends Component {
 
@@ -8,19 +7,19 @@ export class NavMenu extends Component {
       return (
           <div class="ui menu inverted">
               <div class="header item">
-                  <h4>React</h4>
+                  <Link to="/" ><h4>React</h4></Link>
               </div>
               <a class="item" color='blue'>
-                  Customers
+                  <Link to="/fetchcustomers" >Customers</Link>
               </a>
               <a class="item">
-                  Products
+                  <Link to="/fetchproducts" >Products</Link>
               </a>
               <a class="item">
-                  Stores
+                  <Link to="/fetchstores" >Stores</Link>
               </a>
               <a class="item">
-                  Sales
+                  <Link to="/fetchsales" >Sales</Link>
               </a>
           </div>
     );
