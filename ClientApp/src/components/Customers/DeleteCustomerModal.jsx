@@ -1,9 +1,20 @@
 ﻿import './../App.css';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
+import { useState } from 'react';
+import { Icon, Button} from 'semantic-ui-react'
 
-function DeleteCustomerModal({ open, onClose }) {
+function DeleteCustomerModal(props) {
+    const [show, setShow] = useState(props.showDeleteModal)
 
-    if (!open) return null
+    const handleOpen = () => setShow(true);
+    const handleClose = () => setShow(false);
+
+    function handleDelete() {
+        props.deleteCustomer(props.id)
+        handleClose();
+
+    }
+    if (!show) return <Button color='red' onClick={handleOpen}><Icon name='trash' />Delete</Button>
 
     return ReactDOM.createPortal(
         <>
@@ -21,8 +32,8 @@ function DeleteCustomerModal({ open, onClose }) {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <button class="ui black button" floated="right" onClick={onClose}>Cancel</button>
-                            <button class="ui red button" floated="right" onClick={() => deleteCustomer(0)}>Delete</button>
+                            <button class="right floated ui red right labeled icon button" onClick={handleDelete}><Icon name='x icon' />Delete</button>
+                            <button class="ui black right floated button" onClick={handleClose}>Cancel</button>
                         </tr>
                     </tfoot>
                 </table>
@@ -31,18 +42,6 @@ function DeleteCustomerModal({ open, onClose }) {
         </>,
         document.getElementById('portal')
     );
-
-    function deleteCustomer(id) {
-        return (
-            fetch('api/depts/' + id, { method: 'delete' })
-                .then((result) => {
-                    result.json().then((resp) => {
-                        console.warn(resp)
-                    })
-                })
-        );
-    }
-
 }
 
 export default DeleteCustomerModal;

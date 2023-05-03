@@ -1,12 +1,23 @@
 ﻿import './../App.css';
 import ReactDOM from 'react-dom'
+import { Button, Icon} from 'semantic-ui-react'
 import { useState } from 'react';
 
-function CreateCustomerModal({ open, onClose }) {
+function CreateCustomerModal(props) {
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
+    const [show, setShow] = useState(props.showCreateModal)
 
-    if (!open) return null
+    const handleClose = () => setShow(false);
+    const handleOpen = () => setShow(true);
+
+    function handleSave() {
+        props.addCustomer(name, address);
+    }
+
+    if (!show) {
+        return (<Button primary floated="left" onClick={handleOpen}>Create</Button>)
+    }
 
     return ReactDOM.createPortal(
         <>
@@ -22,27 +33,14 @@ function CreateCustomerModal({ open, onClose }) {
                         <label>ADDRESS</label>
                         <input type="text" name="address" value={address} onChange={(e) => { setAddress(e.target.value) }} />
                     </div>
-                    <button class="ui black button" floated="right" onClick={onClose}>Close</button>
-                    <button class="positive ui button" type="submit" floated="right" onClick={saveData}>Create</button>
+                    <button class="right floated positive ui right labeled icon button" onClick={handleSave}><Icon name='check icon' />Create</button>
+                    <button class="ui black right floated button" onClick={handleClose}>Close</button>
                 </form>
             </div>
 
         </>,
         document.getElementById('portal')
     );
-
-    function saveData() {
-        const data = { name: name, address: address }
-
-        fetch('api/depts', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }, body: JSON.stringify(data)
-        })
-            .then(function (res) { return res.json(); })
-            .then(function (json) { console.log(json); });
-    }
 }
 
 export default CreateCustomerModal;

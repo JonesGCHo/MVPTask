@@ -1,17 +1,32 @@
 ﻿import './../App.css';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom'
+import { Button, Icon } from 'semantic-ui-react'
 import { useState } from 'react';
 
-function EditCustomerModal({ open, onClose }) {
+function EditCustomerModal(props) {
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
+    const [show, setShow] = useState(props.showEditModal)
 
-    if (!open) return null
+    const handleClose = () => setShow(false);
+    const handleOpen = () => setShow(true);
+
+    function handleSave() {
+        props.editCustomer(props.id, name, address);
+
+    }
+
+    if (!show) return (<Button color='yellow' onClick={handleOpen}><Icon name='external alternate' />Edit</Button>)
 
     return ReactDOM.createPortal(
         <>
             <div className="modalOverlayStyle" />
             <div className="modalStyle">
+
+                <div>
+                    <h2>Edit Customer</h2>
+                    <br></br>
+                </div>
 
                 <form class="ui form">
                     <div class="field">
@@ -22,8 +37,8 @@ function EditCustomerModal({ open, onClose }) {
                         <label>ADDRESS</label>
                         <input type="text" value={address} onChange={(e) => { setAddress(e.target.value) }} />
                     </div>
-                    <button class="ui black button" floated="right" onClick={onClose}>Close</button>
-                    <button class="positive ui button" floated="right" onClick={editData(0)}>Create</button>
+                    <button class="right floated positive ui right labeled icon button" onClick={handleSave}>Edit<Icon name='check icon' /></button>
+                    <button class="ui black right floated button" onClick={handleClose}>Cancel</button>
                 </form>
             </div>
 
@@ -31,20 +46,7 @@ function EditCustomerModal({ open, onClose }) {
         document.getElementById('portal')
     );
 
-    function editData(id) {
-        var data = { id, name, address }
-        return (
 
-            fetch('api/depts/' + id, {
-                method: 'PUT', headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-        )
-
-    }
 }
 
 export default EditCustomerModal;
