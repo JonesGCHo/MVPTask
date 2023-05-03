@@ -50,5 +50,3 @@ function EditCustomerModal(props) {
 }
 
 export default EditCustomerModal;
-
-//placeholder = { children }

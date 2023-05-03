@@ -12,7 +12,7 @@ function DeleteCustomerModal(props) {
     function handleDelete() {
         props.deleteCustomer(props.id)
         handleClose();
-
+        window.location = "/FetchCustomers";
     }
     if (!show) return <Button color='red' onClick={handleOpen}><Icon name='trash' />Delete</Button>
 

@@ -52,6 +52,12 @@ function FetchCustomers() {
                     )}
                 </Table.Body>
             </Table>
+
+            <div class="right floated ui pagination menu">
+                <a class="active item">
+                    1
+                </a>
+            </div>
         </Container>
     )
 
@@ -70,14 +76,8 @@ function FetchCustomers() {
     function deleteCustomer(id) {
 
         fetch('api/customers/' + id, {
-            method: 'DELETE',
-            headers: {
-                "Content-Type": "application/json", "Accept": "application/json"
-            },
-            body: JSON.stringify({ id: id})
-         }).then(() => {
-            console.log('customer deleted' + id);
-        })
+            method: 'DELETE'
+        })           
     }
 
     function editCustomer(id, name, address) {
@@ -88,7 +88,7 @@ function FetchCustomers() {
             },
             body: JSON.stringify({ id: id, name: name, address: address })
         }).then(() => {
-            console.log('dept edited');
+            console.log('customer edited');
         })
     }
 }

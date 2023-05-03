@@ -2,28 +2,54 @@
 import CreateSaleModal from './CreateSaleModal';
 import DeleteSaleModal from './DeleteSaleModal';
 import EditSaleModal from './EditSaleModal';
-import { Icon, Table, Button, Container } from 'semantic-ui-react';
+import { Table, Container } from 'semantic-ui-react';
 
 function FetchSales() {
     const [sales, setSales] = useState([])
-    const [modalCreate, setModalCreate] = useState(false)
-    const [modalEdit, setModalEdit] = useState(false)
-    const [modalDelete, setModalDelete] = useState(false)
+    const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
+    const dateFormat = new Intl.DateTimeFormat("en-AU", {
+        dateStyle: "medium",
+    })
+
 
     useEffect(() => {
-        fetch('api/stores')
+        getSales();
+    }, [])
+
+    function getSales() {
+        fetch('api/sales')
             .then(response => { return response.json() })
             .then(responseJson => {
                 setSales(responseJson)
             })
-    }, [])
+    }
+
+    
+
+    function sqlToJsDate(sqlDate) {
+        //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss.ms")
+        var sqlDateArr0 = sqlDate.split("T");
+        //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss.ms")
+        var firstpass = sqlDateArr0[0]
+        var sqlDateArr1 = firstpass.split("-");
+        //format of sqlDateArr1[] = ['yyyy','mm','dd hh:mm:ms']
+        var sYear = sqlDateArr1[0];
+        var sMonth = (Number(sqlDateArr1[1]) - 1).toString();
+        var sqlDateArr2 = sqlDateArr1[2].split(" ");
+        //format of sqlDateArr2[] = ['dd', 'hh:mm:ss.ms']
+        var sDay = sqlDateArr2[0];
+
+        const sDate = new Date(sYear, sMonth, sDay);
+        return dateFormat.format(sDate)
+    }
 
     return (
         <Container>
             <div class="ui grid">
                 <div class="four wide column">
-                    <Button primary floated="left" onClick={() => setModalCreate(true)}>Create</Button>
-
+                    <CreateSaleModal addSale={addSale} showCreateModal={showCreateModal} />
                 </div>
             </div>
             <Table celled striped>
@@ -40,24 +66,54 @@ function FetchSales() {
                 <Table.Body>
                     {sales.map(sale =>
                         <Table.Row key={sale.id}>
-                            <Table.Cell>{sale.productid}</Table.Cell>
-                            <Table.Cell>{sale.storeid}</Table.Cell>
-                            <Table.Cell>{sale.customerid}</Table.Cell>
-                            <Table.Cell>{sale.datesold}</Table.Cell>
-                            <Table.Cell><Button color='yellow' onClick={() => setModalEdit(true)}><Icon name='external alternate' />Edit</Button></Table.Cell>
-
-                            <Table.Cell><Button color='red' onClick={() => setModalDelete(true)}><Icon name='trash' />Delete</Button></Table.Cell>
-
+                            <Table.Cell>{sale.productId}</Table.Cell>
+                            <Table.Cell>{sale.storeId}</Table.Cell>
+                            <Table.Cell>{sale.customerId}</Table.Cell>
+                            <Table.Cell>{sqlToJsDate(sale.dateSold)}</Table.Cell>
+                            <Table.Cell><EditSaleModal editSale={editSale} show={showEditModal} id={sale.id} /></Table.Cell>
+                            <Table.Cell><DeleteSaleModal deleteSale={deleteSale} show={showDeleteModal} id={sale.id} /></Table.Cell> 
                         </Table.Row>
                     )}
                 </Table.Body>
             </Table>
+
+            <div class="right floated ui pagination menu">
+                <a class="active item">
+                    1
+                </a>
+            </div>
         </Container>
     )
+
+    function addSale(productid, storeid, customerid, datesold) {
+        fetch('api/sales', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json", "Accept": "application/json"
+            },
+            body: JSON.stringify({ productid: productid, storeid: storeid, customerid: customerid, datesold: datesold })
+        }).then(() => {
+            console.log('new sale added');
+        })
+    }
+
+    function deleteSale(id) {
+
+        fetch('api/sales/' + id, {
+            method: 'DELETE'
+        })
+    }
+
+    function editSale(id, productid, storeid, customerid, datesold) {
+        fetch('api/sales/' + id, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json", "Accept": "application/json"
+            },
+            body: JSON.stringify({ id: id, productId: productid, storeId: storeid, customerId: customerid, dateSold: datesold })
+        }).then(() => {
+            console.log('sale edited');
+        })
+    }
 }
 export default FetchSales;
-
-
-/*<EditSaleModal open={modalEdit} onClose={() => setModalEdit(false)}></EditSaleModal>
-<DeleteSaleModal open={modalDelete} onClose={() => setModalDelete(false)}></DeleteSaleModal>
-<CreateSaleModal open={modalCreate} onClose={() => setModalCreate(false)}></CreateSaleModal>*/

@@ -2,28 +2,31 @@
 import CreateProductModal from './CreateProductModal';
 import DeleteProductModal from './DeleteProductModal';
 import EditProductModal from './EditProductModal';
-import { Icon, Table, Button, Container } from 'semantic-ui-react';
+import { Table, Container } from 'semantic-ui-react';
 
 function FetchProducts() {
     const [products, setProducts] = useState([])
-    const [modalCreate, setModalCreate] = useState(false)
-    const [modalEdit, setModalEdit] = useState(false)
-    const [modalDelete, setModalDelete] = useState(false)
+    const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
 
     useEffect(() => {
+        getProducts();
+    }, [])
+
+    function getProducts() {
         fetch('api/products')
             .then(response => { return response.json() })
             .then(responseJson => {
                 setProducts(responseJson)
             })
-    }, [])
+    }
 
     return (
         <Container>
             <div class="ui grid">
                 <div class="four wide column">
-                    <Button primary floated="left" onClick={() => setModalCreate(true)}>Create</Button>
-
+                    <CreateProductModal addProduct={addProduct} showCreateModal={showCreateModal} />
                 </div>
             </div>
             <Table celled striped>
@@ -42,20 +45,52 @@ function FetchProducts() {
                             <Table.Cell>{product.id}</Table.Cell>
                             <Table.Cell>{product.name}</Table.Cell>
                             <Table.Cell>{product.price}</Table.Cell>
-                            <Table.Cell><Button color='yellow' onClick={() => setModalEdit(true)}><Icon name='external alternate' />Edit</Button></Table.Cell>
-
-                            <Table.Cell><Button color='red' onClick={() => setModalDelete(true)}><Icon name='trash' />Delete</Button></Table.Cell>
+                            <Table.Cell><EditProductModal editProduct={editProduct} show={showEditModal} id={product.id} /></Table.Cell>
+                            <Table.Cell><DeleteProductModal deleteProduct={deleteProduct} show={showDeleteModal} id={product.id} /></Table.Cell>
 
                         </Table.Row>
                     )}
                 </Table.Body>
             </Table>
+
+            <div class="right floated ui pagination menu">
+                <a class="active item">
+                    1
+                </a>
+            </div>
         </Container>
     )
+
+    function addProduct(name, price) {
+        fetch('api/products', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json", "Accept": "application/json"
+            },
+            body: JSON.stringify({ name: name, price: price })
+        }).then(() => {
+            console.log('new product added');
+        })
+    }
+
+    function deleteProduct(id) {
+
+        fetch('api/products/' + id, {
+            method: 'DELETE'
+        })
+    }
+
+    function editProduct(id, name, price) {
+        fetch('api/products/' + id, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json", "Accept": "application/json"
+            },
+            body: JSON.stringify({ id: id, name: name, price: price })
+        }).then(() => {
+            console.log('product edited');
+        })
+    }
 }
 export default FetchProducts;
 
-
-/*<EditProductModal open={modalEdit} onClose={() => setModalEdit(false)}></EditProductModal>
-<DeleteProductModal open={modalDelete} onClose={() => setModalDelete(false)}></DeleteProductModal>
-<CreateProductModal open={modalCreate} onClose={() => setModalCreate(false)}></CreateProductModal>*/
