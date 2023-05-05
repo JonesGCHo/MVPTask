@@ -6,6 +6,9 @@ import { Table, Container } from 'semantic-ui-react';
 
 function FetchSales() {
     const [sales, setSales] = useState([])
+    const [stores, setStores] = useState([])
+    const [products, setProducts] = useState([])
+    const [customers, setCustomers] = useState([])
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
@@ -16,6 +19,9 @@ function FetchSales() {
 
     useEffect(() => {
         getSales();
+        getStores();
+        getCustomers();
+        getProducts();
     }, [])
 
     function getSales() {
@@ -26,23 +32,51 @@ function FetchSales() {
             })
     }
 
-    
+    function getStores() {
+        fetch('api/stores')
+            .then(response => { return response.json() })
+            .then(responseJson => {
+                setStores(responseJson)
+            })
+    }
+
+    function getCustomers() {
+        fetch('api/customers')
+            .then(response => { return response.json() })
+            .then(responseJson => {
+                setCustomers(responseJson)
+            })
+    }
+
+    function getProducts() {
+        fetch('api/products')
+            .then(response => { return response.json() })
+            .then(responseJson => {
+                setProducts(responseJson)
+            })
+    }
 
     function sqlToJsDate(sqlDate) {
-        //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss.ms")
         var sqlDateArr0 = sqlDate.split("T");
-        //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss.ms")
         var firstpass = sqlDateArr0[0]
         var sqlDateArr1 = firstpass.split("-");
-        //format of sqlDateArr1[] = ['yyyy','mm','dd hh:mm:ms']
         var sYear = sqlDateArr1[0];
         var sMonth = (Number(sqlDateArr1[1]) - 1).toString();
         var sqlDateArr2 = sqlDateArr1[2].split(" ");
-        //format of sqlDateArr2[] = ['dd', 'hh:mm:ss.ms']
         var sDay = sqlDateArr2[0];
-
         const sDate = new Date(sYear, sMonth, sDay);
         return dateFormat.format(sDate)
+    }
+
+    function inputToSql(date) {
+        console.log(date)
+        var dateArr = date.split("/");
+        var day = dateArr[0]
+        var month = dateArr[1]
+        var year = dateArr[2]
+        var dateString = year + "-" + month + "-" + day
+        console.log(dateString)
+        return (dateString)
     }
 
     return (
@@ -66,9 +100,9 @@ function FetchSales() {
                 <Table.Body>
                     {sales.map(sale =>
                         <Table.Row key={sale.id}>
-                            <Table.Cell>{sale.productId}</Table.Cell>
-                            <Table.Cell>{sale.storeId}</Table.Cell>
-                            <Table.Cell>{sale.customerId}</Table.Cell>
+                            <Table.Cell>{getName("customers", sale.customerId)}</Table.Cell>
+                            <Table.Cell>{getName("products", sale.productId)}</Table.Cell>
+                            <Table.Cell>{getName("stores", sale.storeId)}</Table.Cell>                        
                             <Table.Cell>{sqlToJsDate(sale.dateSold)}</Table.Cell>
                             <Table.Cell><EditSaleModal editSale={editSale} show={showEditModal} id={sale.id} /></Table.Cell>
                             <Table.Cell><DeleteSaleModal deleteSale={deleteSale} show={showDeleteModal} id={sale.id} /></Table.Cell> 
@@ -85,13 +119,14 @@ function FetchSales() {
         </Container>
     )
 
-    function addSale(productid, storeid, customerid, datesold) {
+    function addSale(productid, customerid, storeid, datesold) {
+        var date = inputToSql(datesold)
         fetch('api/sales', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json", "Accept": "application/json"
             },
-            body: JSON.stringify({ productid: productid, storeid: storeid, customerid: customerid, datesold: datesold })
+            body: JSON.stringify({ productId: productid, customerId: customerid, storeId: storeid, dateSold: date })
         }).then(() => {
             console.log('new sale added');
         })
@@ -105,15 +140,37 @@ function FetchSales() {
     }
 
     function editSale(id, productid, storeid, customerid, datesold) {
+        var date = inputToSql(datesold)
         fetch('api/sales/' + id, {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json", "Accept": "application/json"
             },
-            body: JSON.stringify({ id: id, productId: productid, storeId: storeid, customerId: customerid, dateSold: datesold })
+            body: JSON.stringify({ id: id, productId: productid, storeId: storeid, customerId: customerid, dateSold: date })
         }).then(() => {
             console.log('sale edited');
         })
+    }
+
+    function getName(listName, id) {
+        let object = null;
+        if (id != null) {
+            if (listName == "customers") {
+                object = customers.find(object => object.id === id);
+            }
+            else if (listName == "products") {
+                object = products.find(object => object.id === id);
+            }
+            else {
+                object = stores.find(object => object.id === id);
+            }
+        }
+        if (object != null) {
+            return object.name;
+        }
+        else {
+            return "";
+        }
     }
 }
 export default FetchSales;

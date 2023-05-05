@@ -23,6 +23,10 @@ function CreateStoreModal(props) {
         <>
             <div className="modalOverlayStyle" />
             <div className="modalStyle">
+                <div>
+                    <h2>Create Store</h2>
+                    <br></br>
+                </div>
 
                 <form class="ui form">
                     <div class="field">

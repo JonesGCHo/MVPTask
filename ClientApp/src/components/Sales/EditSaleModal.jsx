@@ -11,7 +11,7 @@ function EditSaleModal(props) {
     const [storeid, setStoreId] = useState("");
     const [customerid, setCustomerId] = useState("");
     const [datesold, setDateSold] = useState("");
-    const [show, setShow] = useState(props.showCreateModal)
+    const [show, setShow] = useState(props.showEditModal)
 
     const handleClose = () => setShow(false);
     const handleOpen = () => setShow(true);
@@ -47,55 +47,68 @@ function EditSaleModal(props) {
             );
     }, [])
 
+    let handleStoreSelect = (e) => {
+        setStoreId(e.target.value)
+    }
+    let handleProductSelect = (e) => {
+        setProductId(e.target.value)
+    }
+    let handleCustomerSelect = (e) => {
+        setCustomerId(e.target.value)
+    }
+
     function handleSave() {
-        props.editSale(props.id, productid, storeid, customerid, datesold);
+        props.editSale(props.id, productid, customerid, storeid, datesold);
     }
 
     if (!show) {
         return (<Button color='yellow' onClick={handleOpen}><Icon name='external alternate' />Edit</Button>)
     }
 
+
     return ReactDOM.createPortal(
         <>
             <div className="modalOverlayStyle" />
             <div className="modalStyle">
 
+                <div>
+                    <h2>Edit Sale</h2>
+                    <br></br>
+                </div>
+
                 <form class="ui form">
                     <div class="field">
                         <label>Date Sold</label>
-                        <input type="text" name="datesold" value={datesold} onChange={(e) => { setDateSold(e.target.value) }} />
+                        <input type="text" name="datesold" value={datesold} onChange={(e) => { setDateSold(e.target.value) }} placeholder="dd/mm/yyyy" />
                     </div>
                     <div class="field">
                         <label>Customer</label>
-                        <Dropdown
-                            placeholder="Customer"
-                            fluid
-                            selection
-                            options={customer}
-                            onChange={(e) => setCustomerId(e.target.value)}
-                        />
+                        <select value={customerid} onChange={handleCustomerSelect}>
+                            <option disabled={true} value="">
+                                --Choose a Customer--
+                            </option>
+                            {customer.map((item) => <option key={item.value} value={item.value}>{item.text}</option>)}
+                        </select>
                     </div>
                     <div class="field">
                         <label>Product</label>
-                        <Dropdown
-                            placeholder="Product"
-                            fluid
-                            selection
-                            options={product}
-                            onChange={(e) => setProductId(e.target.value)}
-                        />
+                        <select value={productid} onChange={handleProductSelect}>
+                            <option disabled={true} value="">
+                                --Choose a Product--
+                            </option>
+                            {product.map((item) => <option key={item.value} value={item.value}>{item.text}</option>)}
+                        </select>
                     </div>
                     <div class="field">
                         <label>Store</label>
-                        <Dropdown
-                            placeholder="Store"
-                            fluid
-                            selection
-                            options={store}
-                            onChange={(e) => setStoreId(e.target.value)}
-                        />
+                        <select value={storeid} onChange={handleStoreSelect} >
+                            <option disabled={true} value="">
+                                --Choose a Store--
+                            </option>
+                            {store.map((item) => <option key={item.value} value={item.value}>{item.text}</option>)}
+                        </select>
                     </div>
-                    <button class="right floated positive ui right labeled icon button" onClick={handleSave}><Icon name='check icon' />Create</button>
+                    <button class="right floated positive ui right labeled icon button" onClick={handleSave}><Icon name='check icon' />Edit</button>
                     <button class="ui black right floated button" onClick={handleClose}>Close</button>
                 </form>
             </div>

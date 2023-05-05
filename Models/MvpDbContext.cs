@@ -52,21 +52,21 @@ public partial class MvpDbContext : DbContext
 
         modelBuilder.Entity<Sale>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Sales__3214EC07805B0F6E");
+            entity.HasKey(e => e.Id).HasName("PK__Sales__3214EC07F84E813F");
 
             entity.Property(e => e.DateSold).HasColumnType("date");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Sales)
                 .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK__Sales__CustomerI__3E52440B");
+                .HasConstraintName("FK__Sales__CustomerI__4222D4EF");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Sales)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__Sales__ProductId__3D5E1FD2");
+                .HasConstraintName("FK__Sales__ProductId__4316F928");
 
             entity.HasOne(d => d.Store).WithMany(p => p.Sales)
                 .HasForeignKey(d => d.StoreId)
-                .HasConstraintName("FK__Sales__StoreId__3F466844");
+                .HasConstraintName("FK__Sales__StoreId__440B1D61");
         });
 
         modelBuilder.Entity<Store>(entity =>
